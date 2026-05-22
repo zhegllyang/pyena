@@ -12,3 +12,6 @@ htmlcov/
 .venv/
 venv/
 src/pyena/_version.py
+
+# Working notebooks (development history; not for distribution)
+notebooks/
