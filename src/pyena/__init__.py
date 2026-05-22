@@ -11,4 +11,4 @@ is the :class:`ENA` estimator::
 from pyena.api import ENA
 
 __all__ = ["ENA"]
-__version__ = "0.1.0.dev0"
+from pyena._version import __version__
