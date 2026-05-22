@@ -5,10 +5,23 @@ All notable changes to pyena will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-05-22
+
+First release published to PyPI.
+
+### Changed
+- Installation instructions in README now use `pip install pyena` as the
+  primary path, with the editable git-clone install moved to a separate
+  "Development install" subsection.
+
+### Added
+- PyPI version badge in README.
+- DOI, publisher, and version fields in the BibTeX citation entry.
+
 ## [0.1.1] - 2026-05-22
 
-First release published to PyPI. No source code changes; packaging metadata
-only.
+Tagged release; not published to PyPI (superseded by 0.1.2). No source code
+changes; packaging metadata only.
 
 ### Added
 - Zenodo concept DOI in `[project.urls]` for citation discovery from the

@@ -1,5 +1,6 @@
 # pyena
 
+[![PyPI](https://img.shields.io/pypi/v/pyena.svg)](https://pypi.org/project/pyena/)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
 [![Tests](https://img.shields.io/badge/tests-101%20passing-brightgreen.svg)](#testing)
@@ -26,10 +27,18 @@
 ## Installation
 
 ```bash
-pip install -e .
+pip install pyena
 ```
 
 Requires Python 3.10+.
+
+### Development install
+
+```bash
+git clone https://github.com/zhegllyang/pyena.git
+cd pyena
+pip install -e ".[dev]"
+```
 
 ## Quickstart
 
@@ -82,10 +91,13 @@ If you use pyena in your research, please cite:
 
 ```bibtex
 @software{song_pyena_2026,
-  author = {Song, JongHwi},
-  title = {{pyena: Python implementation of rENA-exact Epistemic Network Analysis}},
-  year = {2026},
-  url = {https://github.com/zhegllyang/pyena}
+  author    = {Song, JongHwi},
+  title     = {{pyena: Python implementation of rENA-exact Epistemic Network Analysis}},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {0.1.2},
+  doi       = {10.5281/zenodo.20339527},
+  url       = {https://github.com/zhegllyang/pyena}
 }
 ```
 
