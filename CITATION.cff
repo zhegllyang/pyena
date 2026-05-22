@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: "pyena: Python implementation of rENA-exact Epistemic Network Analysis"
+message: "If you use this software, please cite it using these metadata."
+type: software
+authors:
+  - family-names: "Song"
+    given-names: "JongHwi"
+    email: "zhegllyang@gmail.com"
+    orcid: "https://orcid.org/0009-0005-6388-2172"
+    affiliation: "Institute of AI Convergence Sciences, Yonsei University Mirae Campus"
+repository-code: "https://github.com/zhegllyang/pyena"
+abstract: >-
+  pyena is a Python implementation of rENA-exact Epistemic Network Analysis (ENA),
+  numerically validated bit-for-bit against the reference R package rENA 0.3.1.
+  It provides adjacency vector construction, sphere normalization, SVD projection
+  with means rotation, two-group statistical comparison, reproducibility metrics,
+  and visualization through a scikit-learn-style API. All three core stages
+  (adjacency, SVD, means rotation) have been verified against rENA at machine
+  epsilon on a benchmark toy dataset.
+keywords:
+  - epistemic network analysis
+  - ENA
+  - rENA
+  - discourse analysis
+  - text mining
+  - reproducibility
+  - LLM dialogue analysis
+license: BSD-3-Clause
+version: 0.1.0
+date-released: "2026-01-01"
