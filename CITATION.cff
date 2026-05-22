@@ -25,6 +25,7 @@ keywords:
   - text mining
   - reproducibility
   - LLM dialogue analysis
+doi: 10.5281/zenodo.20339528
 license: BSD-3-Clause
 version: 0.1.0
 date-released: "2026-01-01"
