@@ -1,18 +1,18 @@
-"""Adjacency vector construction, rENA-exact.
+"""Adjacency vector construction, verified against rENA.
 
 This module mirrors the C++ source of rENA 0.3.1 (``vector_to_ut`` and
 ``ref_window_df`` in ``rENA/src/ena.cpp``). Adjacency construction uses a
 cross-speaker moving-stanza window: within each conversation the window
 slides over all utterances regardless of speaker, and each row's
 co-occurrences are attributed to the unit that produced that row. This
-matches rENA's MovingStanzaWindow model, in which conversation grouping is
-independent of unit membership.
+matches rENA's MovingStanzaWindow model [1]_, in which conversation grouping
+is independent of unit membership.
 
-The implementation has been verified bit-for-bit against rENA 0.3.1 on the
-RS.data dataset (Shaffer 2017): all 720 cells of the 48-unit x 15-pair
-adjacency matrix match exactly (max absolute difference = 0), including
-multi-speaker conversations. Only the back-only window (``window_forward=0``)
-is currently validated and supported.
+The implementation has been verified against rENA 0.3.1 on the RS.data
+dataset (Shaffer 2017): all 720 cells of the 48-unit x 15-pair adjacency
+matrix match exactly (max absolute difference = 0), including multi-speaker
+conversations. Only the back-only window (``window_forward=0``) is currently
+validated and supported.
 
 References
 ----------
