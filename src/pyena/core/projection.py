@@ -7,7 +7,7 @@ Two dimensionality-reduction routines used downstream of sphere normalization:
   - ``means_rotation`` : faithful reimplementation of rENA's
                          ``ena.rotate.by.mean``, including the auxiliary
                          ``orthogonal_svd`` routine. Verified against rENA
-                         0.3.1 at machine epsilon (max |abs diff| ≈ 2e-16).
+                         0.3.1 at machine epsilon (max abs diff ≈ 2e-16).
 """
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ def means_rotation(centered_matrix, group_labels, group_a, group_b):
     Reimplements rENA 0.3.1's ``ena.rotate.by.mean`` (``rENA/R/RotationSet.R``)
     by reverse-engineering its R source and porting it to NumPy. Verified
     against rENA at machine epsilon on the included toy dataset
-    (max |abs diff| ≈ 2e-16).
+    (max abs diff ≈ 2e-16).
 
     Algorithm:
 

@@ -23,3 +23,6 @@ benchmark_data/*.csv
 !benchmark_data/bench_combined.csv
 !benchmark_data/bench_pyena_*.csv
 !benchmark_data/parity_summary.csv
+docs/build/
+paper/
+validation_rsdata/inspect_output.txt
