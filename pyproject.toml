@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pyena"
 dynamic = ["version"]
-description = "Python implementation of rENA-exact Epistemic Network Analysis"
+description = "Python implementation of Epistemic Network Analysis, verified against rENA"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "BSD-3-Clause"
