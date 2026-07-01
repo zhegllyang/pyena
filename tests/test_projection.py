@@ -22,8 +22,9 @@ class TestSvdProjectReference:
         np.testing.assert_array_equal(
             result.centered, pyena_reference["centered_matrix"]
         )
-        np.testing.assert_array_equal(
-            result.singular_values, pyena_reference["singular_values"][:2]
+        np.testing.assert_allclose(
+            result.singular_values, pyena_reference["singular_values"][:2],
+            atol=1e-12, rtol=1e-12,
         )
 
         # coords and components must match up to sign

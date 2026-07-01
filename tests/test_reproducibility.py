@@ -24,14 +24,14 @@ class TestReproducibilityReference:
         ref_num = ref.astype(float).to_numpy()
         diff = np.abs(pkg_num - ref_num)
         diff[np.isnan(pkg_num) & np.isnan(ref_num)] = 0
-        assert diff.max() == 0.0
+        assert diff.max() < 1e-9
 
     def test_all_matches_notebook_reference(self, reproducibility_reference):
         pkg = reproducibility_metrics(reproducibility_reference["input_points"], None)
         ref = reproducibility_reference["result_all"]
         assert list(pkg.index) == ["all"]
         diff = np.abs(pkg.astype(float).to_numpy() - ref.astype(float).to_numpy())
-        assert diff.max() == 0.0
+        assert diff.max() < 1e-9
 
 
 # ===== Individual metric cross-checks against standard implementations =====

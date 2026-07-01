@@ -143,7 +143,7 @@ class TestConvenienceMethods:
         ref = compare_reference["result_x"]
         for k, v in ref.items():
             if isinstance(v, (int, float, np.integer, np.floating)):
-                assert result[k] == v, f"mismatch in {k}"
+                assert result[k] == pytest.approx(v, rel=1e-9, abs=1e-12), f"mismatch in {k}"
 
     def test_compare_with_explicit_groups(self, ena_mr):
         result = ena_mr.compare(

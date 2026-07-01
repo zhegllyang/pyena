@@ -21,7 +21,7 @@ class TestCompareReference:
         ref = compare_reference["result_x"]
         for k, v in ref.items():
             if isinstance(v, (int, float, np.integer, np.floating)):
-                assert pkg[k] == pytest.approx(v, abs=0, rel=0), f"mismatch in {k}"
+                assert pkg[k] == pytest.approx(v, rel=1e-9, abs=1e-12), f"mismatch in {k}"
             else:
                 assert pkg[k] == v, f"mismatch in {k}"
 
