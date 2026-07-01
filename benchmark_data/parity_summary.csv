@@ -1,0 +1,12 @@
+dataset,stage,max,MAE,MdAE,RMSE
+RS.data (real),adjacency,0.0,0.0,0.0,0.0
+P_dense_6c,adjacency,0.0,0.0,0.0,0.0
+P_sparse_6c,adjacency,0.0,0.0,0.0,0.0
+P_many_12c,adjacency,0.0,0.0,0.0,0.0
+P_fewspk_3c,adjacency,0.0,0.0,0.0,0.0
+S_1k,adjacency,0.0,0.0,0.0,0.0
+S_5k,adjacency,0.0,0.0,0.0,0.0
+S_10k,adjacency,0.0,0.0,0.0,0.0
+S_50k,adjacency,0.0,0.0,0.0,0.0
+RS.data (real),SVD coords,7.389922007661198e-16,2.265570317793707e-16,1.9081958235744878e-16,2.945778699815889e-16
+RS.data (real),MR coords,6.245004513516506e-16,1.7420870157316046e-16,9.8879238130678e-17,2.426294156328795e-16

@@ -1,0 +1,9 @@
+name,rows,convs,units,codes,mean_codes_per_row,path
+P_dense_6c,400,5,20,6,2.44,../benchmark_data/P_dense_6c.csv
+P_sparse_6c,400,5,20,6,0.57,../benchmark_data/P_sparse_6c.csv
+P_many_12c,400,5,20,12,2.5,../benchmark_data/P_many_12c.csv
+P_fewspk_3c,400,8,16,3,1.44,../benchmark_data/P_fewspk_3c.csv
+S_1k,1000,10,50,6,1.76,../benchmark_data/S_1k.csv
+S_5k,5000,25,125,6,1.83,../benchmark_data/S_5k.csv
+S_10k,10000,50,250,6,1.79,../benchmark_data/S_10k.csv
+S_50k,50000,100,1000,6,1.8,../benchmark_data/S_50k.csv

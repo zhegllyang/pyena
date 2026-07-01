@@ -1,0 +1,9 @@
+"case","windowSize","row","C1C2","C1C3","C2C3"
+"A_back2","2",0,1,0,0
+"A_back2","2",1,0,1,1
+"A_back2","2",2,0,1,0
+"B_backInf","Inf",0,1,0,0
+"B_backInf","Inf",1,0,1,1
+"B_backInf","Inf",2,1,1,0
+"C_multicode_back2","2",0,1,0,0
+"C_multicode_back2","2",1,1,1,1
