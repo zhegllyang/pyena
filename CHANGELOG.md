@@ -5,6 +5,31 @@ All notable changes to pyena will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-07-01
+
+### Changed
+- **BREAKING:** Adjacency now uses the cross-speaker moving stanza window.
+  The window slides over all speakers' utterances within a conversation and
+  attributes co-occurrences to the anchor row's unit, matching rENA's default
+  MovingStanzaWindow model. Previous versions confined the window to each
+  unit's own utterances, which diverged from rENA on multi-speaker
+  conversations. Adjacency output changes for any multi-speaker data.
+
+### Added
+- ENA network visualization (`viz.plot_network`) reproducing rENA's standard
+  network representation: code nodes at least-squares positions, edges weighted
+  by group-mean co-occurrence, unit points, centroids, and confidence ellipses.
+- rENA-exact least-squares node placement (`core.projection.lws_lsq_positions`),
+  exposed as the fitted attribute `ENA.nodes_`; verified against rENA to 1e-13.
+- `ENA.plot(kind=...)` selects the network view (default) or the reproducibility
+  scatter.
+- Cross-speaker regression tests and RS.data fixtures; the suite now has 108 tests.
+- Validation against rENA on nine datasets (RS.data + eight synthetic) and a
+  runtime/memory benchmark.
+
+### Guarded
+- `window_forward > 0` raises `NotImplementedError` (forward window unvalidated).
+
 ## [0.1.3] - 2026-05-22
 
 ### Fixed
