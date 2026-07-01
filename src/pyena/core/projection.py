@@ -22,6 +22,7 @@ __all__ = [
     "means_rotation",
     "orthogonal_svd",
     "svd_project",
+    "lws_lsq_positions",
 ]
 
 
@@ -220,3 +221,58 @@ def means_rotation(centered_matrix, group_labels, group_a, group_b):
         weights=weights,
         groups_used=(group_a, group_b),
     )
+
+def lws_lsq_positions(line_weights, points, n_codes):
+    """Compute ENA network node positions via least-squares placement.
+
+    rENA-exact port of ``lws_lsq_positions`` (``ena.cpp`` lines 461-524).
+    Node positions are placed so that each unit's weighted node centroid
+    approximates that unit's ENA point, in a least-squares sense.
+
+    Each code-pair weight is split half-and-half onto its two endpoint
+    nodes; per-unit node weights are L1-normalized; then for each dimension
+    the node coordinates solve ``W @ nodes ≈ points`` in least squares.
+
+    Parameters
+    ----------
+    line_weights : np.ndarray of shape (n_units, n_pairs)
+        Per-unit edge (adjacency) weights. rENA uses the sphere-normalized
+        line weights; raw adjacency vectors give the same node positions
+        up to the least-squares fit.
+    points : np.ndarray of shape (n_units, n_dims)
+        Rotated ENA coordinates for each unit.
+    n_codes : int
+        Number of codes (nodes).
+
+    Returns
+    -------
+    np.ndarray of shape (n_codes, n_dims)
+        Node positions in the ENA coordinate space.
+    """
+    W = np.asarray(line_weights, dtype=float)
+    P = np.asarray(points, dtype=float)
+    n_units = W.shape[0]
+    n_dims = P.shape[1]
+
+    # Distribute each pair's weight half-and-half onto its endpoint nodes.
+    # Pair order is the lower-triangular traversal used by vector_to_ut:
+    # for x in range(n_codes-1): for y in range(x+1): -> pair (y, x+1)
+    node_w = np.zeros((n_units, n_codes))
+    z = 0
+    for x in range(n_codes - 1):
+        for y in range(x + 1):
+            node_w[:, x + 1] += 0.5 * W[:, z]
+            node_w[:, y] += 0.5 * W[:, z]
+            z += 1
+
+    # L1-normalize each unit's node weights (rENA clamps tiny lengths).
+    length = np.abs(node_w).sum(axis=1)
+    length[length < 1e-4] = 1e-4
+    node_w = node_w / length[:, None]
+
+    # Per-dimension least squares: W @ nodes ≈ points.
+    nodes = np.zeros((n_codes, n_dims))
+    for i in range(n_dims):
+        sol, *_ = np.linalg.lstsq(node_w, P[:, i], rcond=None)
+        nodes[:, i] = sol
+    return nodes

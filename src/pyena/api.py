@@ -41,7 +41,7 @@ from sklearn.base import BaseEstimator
 
 from pyena.core.adjacency import compute_all_avs
 from pyena.core.normalize import sphere_normalize
-from pyena.core.projection import means_rotation, svd_project
+from pyena.core.projection import lws_lsq_positions, means_rotation, svd_project
 
 __all__ = ["ENA"]
 
@@ -193,6 +193,8 @@ class ENA(BaseEstimator):
         self.group_ids_ = group_ids
         self.codes_ = list(self.codes)
         self.n_features_in_ = av.shape[1]
+        # ENA network node positions (rENA-exact least-squares placement).
+        self.nodes_ = lws_lsq_positions(av_n, self.coords_, len(self.codes))
 
         return self
 
@@ -233,19 +235,62 @@ class ENA(BaseEstimator):
 
     # ===== Convenience methods =====
 
-    def plot(self, ax=None, **kwargs):
-        """Visualize the fitted ENA space (requires ``group_ids_``).
+    def plot(self, kind="network", ax=None, code_labels=None, **kwargs):
+        """Visualize the fitted ENA space.
 
-        Thin wrapper around :func:`pyena.viz.plots.plot_reproducibility`.
+        Parameters
+        ----------
+        kind : {'network', 'reproducibility'}, default 'network'
+            ``'network'`` draws the standard ENA representation: code nodes
+            at their least-squares positions, edges weighted by mean
+            co-occurrence (subtracted between the two groups when applicable),
+            plus unit points, centroids, and 95% confidence ellipses.
+            ``'reproducibility'`` draws only the unit-point scatter with
+            per-group centroids and confidence ellipses.
+        ax : matplotlib.axes.Axes, optional
+            Axis to draw on; created if omitted.
+        code_labels : list of str, optional
+            Node labels for the network plot; defaults to ``codes_``.
+        **kwargs
+            Forwarded to the underlying plotting function.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
         """
-        from pyena.viz.plots import plot_reproducibility
-        if not self.group_ids_:
-            raise ValueError(
-                f"plot() requires a {self.group_col!r} column in X."
+        if kind == "network":
+            from pyena.viz.plots import plot_network
+            xlabel = "MR1" if self.rotation_matrix_ is not None else "SVD1"
+            group_labels = (
+                np.array(self.group_ids_) if self.group_ids_ else None
             )
-        return plot_reproducibility(
-            self.coords_, np.array(self.group_ids_), ax=ax, **kwargs
-        )
+            return plot_network(
+                self.coords_,
+                self.nodes_,
+                self.av_normalized_,
+                group_labels=group_labels,
+                code_labels=code_labels if code_labels is not None
+                else self.codes_,
+                ax=ax,
+                xlabel=kwargs.pop("xlabel", xlabel),
+                ylabel=kwargs.pop("ylabel", "SVD2"),
+                **kwargs,
+            )
+        elif kind == "reproducibility":
+            from pyena.viz.plots import plot_reproducibility
+            if not self.group_ids_:
+                raise ValueError(
+                    f"plot(kind='reproducibility') requires a "
+                    f"{self.group_col!r} column in X."
+                )
+            return plot_reproducibility(
+                self.coords_, np.array(self.group_ids_), ax=ax, **kwargs
+            )
+        else:
+            raise ValueError(
+                f"Unknown kind={kind!r}; expected 'network' or "
+                f"'reproducibility'."
+            )
 
     def compare(self, axis='x', groups=None, n_permutations=10000, random_state=42):
         """Two-group comparison (Welch + Mann-Whitney + permutation).
