@@ -107,3 +107,60 @@ def align_sign():
                 out[:, k] = -a[:, k]
         return out
     return _align_sign
+
+# ===== RS.data cross-speaker fixtures =====
+@pytest.fixture(scope="session")
+def rsdata_raw():
+    """RS.data — multi-speaker conversations, the cross-speaker regression input."""
+    p = DATA_DIR / "rs_data.csv"
+    if not p.exists():
+        pytest.fail(f"rs_data.csv missing at {p}")
+    return pd.read_csv(p)
+
+
+@pytest.fixture(scope="session")
+def rsdata_codes():
+    """The six RS.data code names, in rENA column order."""
+    return ["Data", "Technical.Constraints", "Performance.Parameters",
+            "Client.and.Consultant.Requests", "Design.Reasoning", "Collaboration"]
+
+
+@pytest.fixture(scope="session")
+def rsdata_rena_adjacency():
+    """rENA-exact adjacency for RS.data (48 units x 15 pairs), window.size.back=4.
+
+    Ground truth exported from rENA 0.3.1; columns are in rENA's native
+    (column-major upper-triangle) pair order.
+    """
+    p = DATA_DIR / "rena_adjacency_rsdata.csv"
+    if not p.exists():
+        pytest.fail(f"rena_adjacency_rsdata.csv missing at {p}")
+    return pd.read_csv(p).set_index("ENA_UNIT")
+    
+@pytest.fixture(scope="session")
+def rsdata_rena_svd():
+    """rENA SVD coords for RS.data (48 units), window.size.back=4.
+    Columns: SVD1..SVD15; only the first two are compared (pyena is 2D)."""
+    p = DATA_DIR / "rena_svd_rsdata.csv"
+    if not p.exists():
+        pytest.fail(f"rena_svd_rsdata.csv missing at {p}")
+    return pd.read_csv(p).set_index("ENA_UNIT")
+
+
+@pytest.fixture(scope="session")
+def rsdata_rena_mr():
+    """rENA means-rotation coords for RS.data (FirstGame vs SecondGame).
+    Columns: MR1, SVD2..SVD15; only the first two are compared."""
+    p = DATA_DIR / "rena_mr_rsdata.csv"
+    if not p.exists():
+        pytest.fail(f"rena_mr_rsdata.csv missing at {p}")
+    return pd.read_csv(p).set_index("ENA_UNIT")
+    
+@pytest.fixture(scope="session")
+def rsdata_rena_nodes():
+    """rENA network node positions for RS.data (6 codes), SVD projection.
+    Columns: code, SVD1..SVD15; only the first two dims are compared."""
+    p = DATA_DIR / "rena_nodes_rsdata.csv"
+    if not p.exists():
+        pytest.fail(f"rena_nodes_rsdata.csv missing at {p}")
+    return pd.read_csv(p)

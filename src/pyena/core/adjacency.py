@@ -1,9 +1,18 @@
 """Adjacency vector construction, rENA-exact.
 
 This module mirrors the C++ source of rENA 0.3.1 (``vector_to_ut`` and
-``ref_window_df`` in ``rENA/src/ena.cpp``). The implementation has been
-verified bit-for-bit against rENA on a 90-unit toy dataset
-(900/900 cells match, max absolute difference = 0).
+``ref_window_df`` in ``rENA/src/ena.cpp``). Adjacency construction uses a
+cross-speaker moving-stanza window: within each conversation the window
+slides over all utterances regardless of speaker, and each row's
+co-occurrences are attributed to the unit that produced that row. This
+matches rENA's MovingStanzaWindow model, in which conversation grouping is
+independent of unit membership.
+
+The implementation has been verified bit-for-bit against rENA 0.3.1 on the
+RS.data dataset (Shaffer 2017): all 720 cells of the 48-unit x 15-pair
+adjacency matrix match exactly (max absolute difference = 0), including
+multi-speaker conversations. Only the back-only window (``window_forward=0``)
+is currently validated and supported.
 
 References
 ----------
@@ -111,6 +120,13 @@ def ref_window_df(code_matrix, window_size=4, window_forward=0, binary=True):
         Per-row adjacency vectors in rENA pair order, where
         ``n_pairs = n_codes * (n_codes - 1) / 2``.
     """
+    if window_forward != 0:
+        raise NotImplementedError(
+            "Forward stanza window (window_forward > 0) is not yet validated "
+            "against rENA and is therefore unsupported. Only back-only "
+            "windows (window_forward=0) are currently supported."
+        )
+    
     df_rows, df_cols = code_matrix.shape
     n_pairs = (df_cols * (df_cols + 1)) // 2 - df_cols
     df_co_occurred = np.zeros((df_rows, n_pairs))
@@ -159,72 +175,79 @@ def compute_all_avs(
     window_forward=0,
     binary=True,
 ):
-    """Compute per-unit adjacency vectors over all stanza windows.
+    """Compute per-unit adjacency vectors using a cross-speaker stanza window.
 
-    For each unit, the function iterates over its conversations, applies the
-    rENA-exact moving-stanza window within each conversation (windows do not
-    cross conversation boundaries), and sums per-row adjacency vectors into a
-    single per-unit vector.
+    Within each conversation, the moving-stanza window slides over *all*
+    utterances in turn order, regardless of which unit produced them. Each
+    row's per-row co-occurrence vector is then attributed to the unit that
+    produced that row, and summed into that unit's adjacency vector. This is
+    rENA's MovingStanzaWindow behaviour: conversation grouping defines the
+    window boundaries and is independent of unit membership, so co-occurrences
+    between a unit's utterance and a *different* speaker's nearby utterance are
+    captured.
+
+    Rows are ordered within each conversation by the ``'turn'`` column. The
+    caller is responsible for assigning ``'turn'`` consistently with the
+    intended utterance order within each conversation.
 
     Parameters
     ----------
     df : pd.DataFrame
-        Long-format utterance table. Must be sortable by a ``'turn'`` column
-        within each unit, and must contain the columns listed in ``codes``,
-        plus ``unit_col`` and ``conversation_col``.
+        Long-format utterance table containing a ``'turn'`` column, the columns
+        listed in ``codes``, plus ``unit_col`` and ``conversation_col``.
     codes : list of str
         Code column names. Their order is preserved in the output AV columns.
     unit_col : str, default 'unit'
         Column name defining ENA units.
     conversation_col : str, default 'conversation'
-        Column name defining conversation boundaries.
+        Column name defining conversation boundaries (window grouping).
     window_size : int, default 4
-        Stanza window size, passed to ``ref_window_df``.
+        Stanza window size (focal row + lookback), passed to ``ref_window_df``.
     window_forward : int, default 0
-        Forward lookahead, passed to ``ref_window_df``.
+        Forward lookahead. Only 0 is currently supported; see ``ref_window_df``.
     binary : bool, default True
         Whether to clip co-occurrence counts to 0/1, passed to ``ref_window_df``.
 
     Returns
     -------
     avs : np.ndarray of shape (n_units, n_pairs)
-        Per-unit adjacency vectors in rENA pair order.
+        Per-unit adjacency vectors in rENA pair order. Unit rows follow the
+        order of first appearance of each unit in ``df[unit_col]``.
     unit_ids : list
         Unit identifiers in the same order as ``avs`` rows.
     group_ids : list
         Group labels per unit if ``'group'`` is a column in ``df``; otherwise
         an empty list.
     """
-    all_avs = []
-    unit_ids = []
-    group_ids = []
+    n_codes = len(codes)
+    n_pairs = (n_codes * (n_codes + 1)) // 2 - n_codes
     has_group = 'group' in df.columns
 
-    for unit_id in df[unit_col].unique():
-        unit_data = (
-            df[df[unit_col] == unit_id].sort_values('turn').reset_index(drop=True)
+    unit_ids = list(df[unit_col].unique())
+    unit_idx = {u: i for i, u in enumerate(unit_ids)}
+    avs = np.zeros((len(unit_ids), n_pairs))
+    group_of = {}
+
+    # Group by conversation (NOT by unit), so the window spans every speaker's
+    # utterances within a conversation. Preserve turn order within each.
+    for _conv, conv_data in df.groupby(conversation_col, sort=False):
+    #for _conv, conv_data in df.groupby([conversation_col, unit_col], sort=False):
+        conv_data = conv_data.sort_values('turn')
+        cm = conv_data[codes].values
+        co_occurred = ref_window_df(
+            cm,
+            window_size=window_size,
+            window_forward=window_forward,
+            binary=binary,
         )
-        n_codes = len(codes)
-        unit_av = np.zeros((n_codes * (n_codes + 1)) // 2 - n_codes)
+        row_units = conv_data[unit_col].values
+        for r in range(len(conv_data)):
+            avs[unit_idx[row_units[r]]] += co_occurred[r]
 
-        for conv in unit_data[conversation_col].unique():
-            conv_data = (
-                unit_data[unit_data[conversation_col] == conv]
-                .sort_values('turn')
-                .reset_index(drop=True)
-            )
-            cm = conv_data[codes].values
-            co_occurred = ref_window_df(
-                cm,
-                window_size=window_size,
-                window_forward=window_forward,
-                binary=binary,
-            )
-            unit_av += co_occurred.sum(axis=0)
-
-        all_avs.append(unit_av)
-        unit_ids.append(unit_id)
         if has_group:
-            group_ids.append(unit_data['group'].iloc[0])
+            group_vals = conv_data['group'].values
+            for u, gval in zip(row_units, group_vals):
+                group_of.setdefault(u, gval)
 
-    return np.array(all_avs), unit_ids, group_ids
+    group_ids = [group_of[u] for u in unit_ids] if has_group else []
+    return avs, unit_ids, group_ids
